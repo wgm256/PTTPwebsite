@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>WSP ChatBot</title>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" />
+		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<style>
+			#response, #rewriteResponse {
+				margin-top: 20px;
+				padding: 10px;
+				min-height: 50px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+			}
+			#response h3, #rewriteResponse h3 {
+				color: #333;
+				font-size: 1.2em;
+			}
+			#response strong, #rewriteResponse strong {
+				color: #d9534f;
+			}
+			#response ul, #rewriteResponse ul {
+				padding-left: 20px;
+			}
+			#response li, #rewriteResponse li {
+				margin-bottom: 5px;
+			}
+			.original-statement {
+				background-color: #f8f9fa;
+				padding: 15px;
+				border-radius: 4px;
+				margin-bottom: 20px;
+			}
+			.btn-rewrite {
+				margin-bottom: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h2>Power to the People</h2>
+			
+			<div class="original-statement">
+				<h4>Original Statement:</h4>
+				<p>"Pete Hegseth was confirmed by the senate, despite the entire legislative body knowing that he is unfit for his position. This recent breach in national security requires immediate action and replacement of his position with someone who is qualified to act as the secretary of defense."</p>
+			</div>
+			
+			<button class="btn btn-primary btn-rewrite" onclick="rewriteStatement()">Pete Hegseth</button>
+			<div id="rewriteResponse"></div>
+			
+			<div class="form-group">
+				<input
+					type="text"
+					class="form-control"
+					id="userInput"
+					placeholder="Enter your question" />
+			</div>
+			<button class="btn btn-success" onclick="sendMessage()">Ask!</button>
+			<div id="response"></div>
+		</div>
+		<script>
+			async function rewriteStatement() {
+				const originalText = "Pete Hegseth was confirmed by the senate, despite the entire legislative body knowing that he is unfit for his position. This recent breach in national security requires immediate action and replacement of his position with someone who is qualified to act as the secretary of defense.";
+				const prompt = "Please rewrite the following statement in a more neutral, professional tone while maintaining its core meaning: " + originalText;
+				
+				const responseDiv = document.getElementById('rewriteResponse');
+				responseDiv.innerHTML = 'Rewriting...';
+				
+				try {
+					const response = await fetch(
+						'https://openrouter.ai/api/v1/chat/completions',
+						{
+							method: 'POST',
+							headers: {
+								Authorization: 'Bearer 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',
+								'HTTP-Referer': 'https://wgm256.github.io/PTTPwebsite/website.html',
+								'X-Title': 'SiteName',
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								model: 'deepseek/deepseek-r1:free',
+								messages: [{ role: 'user', content: prompt }],
+							}),
+						},
+					);
+					const data = await response.json();
+					const rewrittenText = data.choices?.[0]?.message?.content || 'No response received.';
+					responseDiv.innerHTML = "<h4>Concerning Pete Hegseth:</h4>" + marked.parse(rewrittenText);
+				} catch (error) {
+					responseDiv.innerHTML = 'Error: ' + error.message;
+				}
+			}
+			
+			async function sendMessage() {
+				const input = document.getElementById('userInput').value;
+				const responseDiv = document.getElementById('response');
+				if (!input) {
+					responseDiv.innerHTML = 'Please enter a message.';
+					return;
+				}
+				responseDiv.innerHTML = 'Loading...';
+				try {
+					const response = await fetch(
+						'https://openrouter.ai/api/v1/chat/completions',
+						{
+							method: 'POST',
+							headers: {
+								Authorization: 'Bearer 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',
+								'HTTP-Referer': 'https://wgm256.github.io/PTTPwebsite/website.html',
+								'X-Title': 'SiteName',
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								model: 'deepseek/deepseek-r1:free',
+								messages: [{ role: 'user', content: input }],
+							}),
+						},
+					);
+					const data = await response.json();
+					console.log(data);
+					const markdownText =
+						data.choices?.[0]?.message?.content || 'No response received.';
+					responseDiv.innerHTML = marked.parse(markdownText);
+				} catch (error) {
+					responseDiv.innerHTML = 'Error: ' + error.message;
+				}
+			}
+		</script>
+	</body>
+</html>
