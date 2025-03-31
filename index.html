@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Loudest Voice Wins</title>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .section-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+        #response, #rewriteResponse, #repResponse, #muskRewriteResponse {
+            margin-top: 20px;
+            padding: 15px;
+            min-height: 50px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        .btn-rewrite, .btn-find-reps, .btn-rewrite-musk {
+            margin-bottom: 20px;
+        }
+        .address-form {
+            background-color: #f0f8ff;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .rep-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: white;
+        }
+        .contact-btn {
+            margin-top: 10px;
+        }
+        .topic-dropdown {
+            margin-bottom: 20px;
+        }
+        .loading-dots {
+            display: inline-block;
+            font-size: 20px;
+            letter-spacing: 2px;
+        }
+        .loading-dots::after {
+            content: '...';
+            display: inline-block;
+            animation: dotty 1.5s infinite step-start;
+        }
+        @keyframes dotty {
+            0%   { content: ''; }
+            25%  { content: '.'; }
+            50%  { content: '..'; }
+            75%  { content: '...'; }
+            100% { content: ''; }
+        }
+        .loading-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .about-me {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #e9f7ef;
+            border-radius: 5px;
+        }
+        .social-links {
+            margin-top: 15px;
+        }
+        .social-links a {
+            margin-right: 15px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="jumbotron text-center">
+        <h1 class="display-4">The Loudest Voice Wins</h1>
+        <p class="lead">This platform exists to empower you to speak up and make a difference—now is the time to act! Reach out to your elected officials with just one email and one phone call each week. As our voices unite and grow into a force too powerful to ignore, we hold those in power accountable. The moment to ignite change is now!</p>
+        <hr class="my-4">
+        <p>Follow the simple steps below to generate messages about important issues, find your representatives' contact information, and make your voice heard in Congress.</p>
+    </div>
+
+    <div class="container">
+        <!-- Section 1: Choose Topic of Concern -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Step 1: Choose Critical Issue</h2>
+            </div>
+            <div class="alert alert-info">
+                <p>Select a decisive matter below to write to your members of Congress about.</p>
+                <p>Each email is uniquely generated to demand urgent action on a critical topic, ensuring that no two messages are the same.</p>
+            </div>
+            <div class="form-group topic-dropdown">
+                <label for="topicSelect">Select a topic:</label>
+                <select class="form-control" id="topicSelect" onchange="handleTopicSelection()">
+                    <option value="">-- Select a topic --</option>
+                    <option value="signalGate">SignalGate</option>
+                    <option value="musk">Elon Musk/DOGE</option>
+                </select>
+            </div>
+            <div id="rewriteResponse"></div>
+        </div>
+
+        <!-- Section 2: Visit Democracy.io -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Step 2: Visit Democracy.io</h2>
+            </div>
+            <div class="alert alert-info">
+                <p>After generating your message above, visit <a href="https://democracy.io" target="_blank">Democracy.io</a> to send it directly to your representatives.</p>
+                <p>Copy the message from above and paste it into the message field on Democracy.io.</p>
+            </div>
+        </div>
+
+        <!-- Section 3: Call Your Members of Congress -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Step 3: Call Your Members of Congress</h2>
+            </div>
+            <div class="address-form">
+                <h4>Find Your Representatives Phone Numbers</h4>
+                <div class="form-group">
+                    <label for="streetAddress">Street Address</label>
+                    <input type="text" class="form-control" id="streetAddress" placeholder="123 Main St">
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" class="form-control" id="city" placeholder="Anytown">
+                </div>
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <input type="text" class="form-control" id="state" placeholder="CA" maxlength="2">
+                </div>
+                <div class="form-group">
+                    <label for="zipCode">ZIP Code</label>
+                    <input type="text" class="form-control" id="zipCode" placeholder="90210">
+                </div>
+                <button class="btn btn-primary btn-find-reps" onclick="findRepresentatives()">Find My Representatives</button>
+                <div id="repResponse"></div>
+            </div>
+            <div id="repCards"></div>
+        </div>
+
+        <!-- Section 4: Ask AI for More Facts -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Need Additional Information on a Topic?</h2>
+            </div>
+            <div class="form-group">
+                <label for="userInput">Ask AI a question about your topic of concern:</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="userInput"
+                    placeholder="Example: How did the Russo-Ukrainian War start?" />
+            </div>
+            <button class="btn btn-success" onclick="sendMessage()">Ask AI!</button>
+            <div id="response"></div>
+        </div>
+
+        <!-- About Me Section -->
+        <div class="about-me">
+            <div class="section-header">
+                <h2>About Me</h2>
+            </div>
+            <p>This site was created by <strong>William Mitchell, MD</strong>, a Gastroenterologist based in New York City.</p>
+            <div class="social-links">
+                <a href="https://bsky.app/profile/williammitchellmd.bsky.social" target="_blank">Bluesky Profile</a>
+                <a href="https://www.doximity.com/profiles/1fcd1b84-53fa-44db-8293-e2c4ebd10a8a" target="_blank">Doximity Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentReps = []; // Store representative data
+        
+        function showLoading(elementId, message = 'Loading') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                <div class="loading-container">
+                    <span>${message}</span>
+                    <span class="loading-dots"></span>
+                </div>
+            `;
+        }
+        
+        function handleTopicSelection() {
+            const topicSelect = document.getElementById('topicSelect');
+            const selectedTopic = topicSelect.value;
+            const responseDiv = document.getElementById('rewriteResponse');
+            
+            if (selectedTopic === 'signalGate') {
+                rewriteStatement();
+            } else if (selectedTopic === 'musk') {
+                rewriteMuskStatement();
+            } else {
+                responseDiv.innerHTML = '';
+            }
+        }
+        
+        async function findRepresentatives() {
+            const street = document.getElementById('streetAddress').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const zip = document.getElementById('zipCode').value;
+            
+            const responseDiv = document.getElementById('repResponse');
+            showLoading('repResponse', 'Searching for your representatives');
+            
+            if (!street || !city || !state || !zip) {
+                responseDiv.innerHTML = '<div class="alert alert-warning">Please fill in all address fields.</div>';
+                return;
+            }
+            
+            const prompt = `Based on this address: ${street}, ${city}, ${state} ${zip}, provide the names, positions, and phone numbers of all U.S. Senators and the U.S. Representative for this district. Format the response as a clear list with each representative's name, position (Senator or Representative), state, district (if applicable), and phone number. Include the website congress.gov in your sources.`;
+            
+            try {
+                const response = await fetch(
+                    'https://openrouter.ai/api/v1/chat/completions',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model: 'deepseek/deepseek-r1:free',
+                            messages: [{ role: 'user', content: prompt }],
+                            response_format: { type: "text" }
+                        }),
+                    },
+                );
+                const data = await response.json();
+                const repInfo = data.choices?.[0]?.message?.content || 'No response received.';
+                responseDiv.innerHTML = "<h4>Your Representatives:</h4>" + marked.parse(repInfo);
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function rewriteStatement() {
+            const originalText = "Pete Hegseth was confirmed by the senate, despite the entire legislative body knowing that he is unfit for his position. This recent breach in national security requires immediate action and replacement of his position with someone who is qualified to act as the secretary of defense.";
+            const prompt = "Please rewrite the following statement in a more neutral, professional tone while maintaining its core meaning: " + originalText;
+            
+            const responseDiv = document.getElementById('rewriteResponse');
+            showLoading('rewriteResponse', 'Generating your message');
+            
+            try {
+                const response = await fetch(
+                    'https://openrouter.ai/api/v1/chat/completions',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model: 'deepseek/deepseek-r1:free',
+                            messages: [{ role: 'user', content: prompt }],
+                        }),
+                    },
+                );
+                const data = await response.json();
+                const rewrittenText = data.choices?.[0]?.message?.content || 'No response received.';
+                responseDiv.innerHTML = "<h4>Message to Congress:</h4>" + marked.parse(rewrittenText);
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function rewriteMuskStatement() {
+            const originalText = "I am writing to express my deep concern regarding Elon Musk's involvement in the Trump administration, particularly his leadership of the Department of Government Efficiency (DOGE). Recent reports have raised significant issues related to conflicts of interest, national security, and potential constitutional violations that demand immediate congressional oversight. Musk's extensive business interests—spanning SpaceX, Tesla, and Neuralink—create clear conflicts with his role in the federal government. As a federal officer, he is subject to the criminal conflict of interest statute (18 USC 208), yet his access to sensitive government data and policy decisions raises serious ethical and legal questions. Additionally, Representative Betty McCollum has warned about Musk's unauthorized access to private data on American citizens, further emphasizing the need for transparency. Beyond conflicts of interest, Musk's role presents alarming national security risks. His seemingly unsupervised access to sensitive systems, coupled with DOGE-led dismissals of critical personnel in defense and nuclear security programs, could compromise U.S. security infrastructure. Experts have described this situation as a national security threat that requires immediate action. Furthermore, constitutional scholars such as Laurence Tribe have warned that DOGE's operations may infringe upon fundamental legal principles, including privacy protections and congressional budgetary authority. Any attempt to unilaterally restructure federal agencies without congressional approval constitutes a direct challenge to the checks and balances that uphold our democracy. I urge you to call for a full investigation into Musk's role in the federal government, ensure strict enforcement of conflict-of-interest laws, and take immediate action to safeguard national security and constitutional integrity. The American people deserve transparency and accountability in government, and these unprecedented concerns must be addressed without delay.Thank you for your attention to this critical issue. I look forward to your response.";
+            const prompt = "Please rewrite the following statement in a more neutral, professional tone while maintaining its core concerns about conflicts of interest, national security, and constitutional issues: " + originalText;
+            
+            const responseDiv = document.getElementById('rewriteResponse');
+            showLoading('rewriteResponse', 'Generating your message');
+            
+            try {
+                const response = await fetch(
+                    'https://openrouter.ai/api/v1/chat/completions',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model: 'deepseek/deepseek-r1:free',
+                            messages: [{ role: 'user', content: prompt }],
+                        }),
+                    },
+                );
+                const data = await response.json();
+                const rewrittenText = data.choices?.[0]?.message?.content || 'No response received.';
+                responseDiv.innerHTML = "<h4>Message to Congress:</h4>" + marked.parse(rewrittenText);
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('userInput').value;
+            const responseDiv = document.getElementById('response');
+            if (!input) {
+                responseDiv.innerHTML = '<div class="alert alert-warning">Please enter a message.</div>';
+                return;
+            }
+            
+            showLoading('response', 'Thinking');
+            
+            try {
+                const response = await fetch(
+                    'https://openrouter.ai/api/v1/chat/completions',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model: 'deepseek/deepseek-r1:free',
+                            messages: [{ role: 'user', content: input }],
+                        }),
+                    },
+                );
+                const data = await response.json();
+                console.log(data);
+                const markdownText =
+                    data.choices?.[0]?.message?.content || 'No response received.';
+                responseDiv.innerHTML = marked.parse(markdownText);
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
