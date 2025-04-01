@@ -24,7 +24,11 @@ exports.handler = async (event) => {
         'HTTP-Referer': 'https://yourdomain.com',
         'X-Title': 'Your App Name'
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify({
+        model: 'deepseek/deepseek-r1:free',
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: "text"},
+      }),
       timeout: 8000 // 8 second timeout
     });
 
