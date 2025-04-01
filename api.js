@@ -1,40 +1,44 @@
-const fetch = require('node-fetch');
-
 exports.handler = async (event) => {
-  // Handle CORS preflight request
+  // Handle CORS
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST'
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
       body: JSON.stringify({ message: 'CORS preflight' })
     };
   }
 
-  try {
-    if (!event.body) {
-      throw new Error("Missing request body");
-    }
+  // Only allow POST requests
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method not allowed' })
+    };
+  }
 
+  try {
     const requestBody = JSON.parse(event.body);
     
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const apiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://your-site-url.com', // Required by OpenRouter
+        'X-Title': 'Your Site Name' // Required by OpenRouter
       },
       body: event.body
     });
 
-    if (!response.ok) {
-      throw new Error(`OpenRouter API error: ${response.statusText}`);
+    if (!apiResponse.ok) {
+      throw new Error(`API error: ${apiResponse.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await apiResponse.json();
 
     return {
       statusCode: 200,
@@ -44,7 +48,6 @@ exports.handler = async (event) => {
       },
       body: JSON.stringify(data)
     };
-    
   } catch (error) {
     return {
       statusCode: 500,
@@ -54,7 +57,7 @@ exports.handler = async (event) => {
       },
       body: JSON.stringify({
         error: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       })
     };
   }
