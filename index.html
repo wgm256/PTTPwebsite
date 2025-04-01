@@ -217,7 +217,7 @@
         }
         
         async function findRepresentatives() {
-            const API_BASE_URL = '/.netlify/functions/api.js';
+            const API_BASE_URL = '/netlify/functions/api.js';
             const street = document.getElementById('streetAddress').value;
             const city = document.getElementById('city').value;
             const state = document.getElementById('state').value;
@@ -235,7 +235,7 @@
             
             try {
                 const response = await fetch(
-                    '/.netlify/functions/api.js',
+                    '/netlify/functions/api.js',
                     {
                         method: 'POST',
                         headers: {
@@ -257,7 +257,7 @@
         }
         
         async function rewriteStatement() {
-            const API_BASE_URL = '/.netlify/functions/api.js';
+            const API_BASE_URL = '/netlify/functions/api.js';
             const originalText = "Pete Hegseth was confirmed by the senate, despite the entire legislative body knowing that he is unfit for his position. This recent breach in national security requires immediate action and replacement of his position with someone who is qualified to act as the secretary of defense.";
             const prompt = "Please rewrite the following statement in a more neutral, professional tone while maintaining its core meaning: " + originalText;
             
@@ -266,7 +266,7 @@
             
             try {
                 const response = await fetch(
-                    '/.netlify/functions/api.js',
+                    '/netlify/functions/api.js',
                     {
                         method: 'POST',
                         headers: {
@@ -287,7 +287,7 @@
         }
         
         async function rewriteMuskStatement() {
-            const API_BASE_URL = '/.netlify/functions/api.js';
+            const API_BASE_URL = '/netlify/functions/api.js';
             const originalText = "I am writing to express my deep concern regarding Elon Musk's involvement in the Trump administration, particularly his leadership of the Department of Government Efficiency (DOGE). Recent reports have raised significant issues related to conflicts of interest, national security, and potential constitutional violations that demand immediate congressional oversight. Musk's extensive business interests—spanning SpaceX, Tesla, and Neuralink—create clear conflicts with his role in the federal government. As a federal officer, he is subject to the criminal conflict of interest statute (18 USC 208), yet his access to sensitive government data and policy decisions raises serious ethical and legal questions. Additionally, Representative Betty McCollum has warned about Musk's unauthorized access to private data on American citizens, further emphasizing the need for transparency. Beyond conflicts of interest, Musk's role presents alarming national security risks. His seemingly unsupervised access to sensitive systems, coupled with DOGE-led dismissals of critical personnel in defense and nuclear security programs, could compromise U.S. security infrastructure. Experts have described this situation as a national security threat that requires immediate action. Furthermore, constitutional scholars such as Laurence Tribe have warned that DOGE's operations may infringe upon fundamental legal principles, including privacy protections and congressional budgetary authority. Any attempt to unilaterally restructure federal agencies without congressional approval constitutes a direct challenge to the checks and balances that uphold our democracy. I urge you to call for a full investigation into Musk's role in the federal government, ensure strict enforcement of conflict-of-interest laws, and take immediate action to safeguard national security and constitutional integrity. The American people deserve transparency and accountability in government, and these unprecedented concerns must be addressed without delay.Thank you for your attention to this critical issue. I look forward to your response.";
             const prompt = "Please rewrite the following statement in a more neutral, professional tone while maintaining its core concerns about conflicts of interest, national security, and constitutional issues: " + originalText;
             
@@ -296,7 +296,7 @@
             
             try {
                 const response = await fetch(
-                    '/.netlify/functions/api.js',
+                    '/netlify/functions/api.js',
                     {
                         method: 'POST',
                         headers: {
@@ -317,7 +317,7 @@
         }
         
         async function sendMessage() {
-            const API_BASE_URL = '/.netlify/functions/api.js';
+            const API_BASE_URL = '/netlify/functions/api.js';
             const input = document.getElementById('userInput').value;
             const responseDiv = document.getElementById('response');
             if (!input) {
@@ -329,7 +329,7 @@
             
             try {
                 const response = await fetch(
-                    '/.netlify/functions/api.js',
+                    '/netlify/functions/api.js',
                     {
                         method: 'POST',
                         headers: {
