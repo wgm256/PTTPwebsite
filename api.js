@@ -15,7 +15,11 @@ exports.handler = async (event) => {
 
   try {
     const requestBody = JSON.parse(event.body || '{}');
+    const prompt = requestBody.prompt; // Make sure you're getting the prompt from the request
     
+    // Debug: Log the environment variable (remove in production)
+    console.log('API Key:', process.env.OPENROUTER_API_KEY ? 'exists' : 'missing');
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -27,9 +31,8 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         model: 'deepseek/deepseek-r1:free',
         messages: [{ role: 'user', content: prompt }],
-        response_format: { type: "text"},
-      }),
-      timeout: 8000 // 8 second timeout
+        response_format: { type: "text" },
+      })
     });
 
     // First get the raw text
