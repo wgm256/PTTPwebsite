@@ -16,7 +16,11 @@ app.post('/api/v1/chat/completions', async (req, res) => {
                 Authorization: `Bearer ${process.env.API_KEY}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(req.body),
+            body: JSON.stringify({
+                model: 'deepseek/deepseek-r1:free',
+                messages: [{role: 'user', content: prompt }],
+                response_format: { type: "text"}
+            })
         });
         
         const data = await response.json();
