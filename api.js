@@ -14,11 +14,9 @@ exports.handler = async (event) => {
   }
 
   try {
-    if (!event.body) {
-      throw new Error("Missing request body");
-    }
-
-    const apiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const requestBody = JSON.parse(event.body || '{}');
+    
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
@@ -26,15 +24,25 @@ exports.handler = async (event) => {
         'HTTP-Referer': 'https://yourdomain.com',
         'X-Title': 'Your App Name'
       },
-      body: event.body
+      body: JSON.stringify(requestBody),
+      timeout: 8000 // 8 second timeout
     });
 
-    if (!apiResponse.ok) {
-      const errorText = await apiResponse.text();
-      throw new Error(`API error: ${apiResponse.status} - ${errorText}`);
+    // First get the raw text
+    const text = await response.text();
+    
+    // Then safely parse
+    let data;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (e) {
+      console.error('Failed to parse:', text);
+      throw new Error('Invalid API response');
     }
 
-    const data = await apiResponse.json();
+    if (!response.ok) {
+      throw new Error(data.error?.message || `API error: ${response.status}`);
+    }
 
     return {
       statusCode: 200,
@@ -42,10 +50,7 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({
-        response: data.choices[0]?.message?.content || "No response content",
-        usage: data.usage
-      })
+      body: JSON.stringify(data)
     };
 
   } catch (error) {
